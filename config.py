@@ -1,6 +1,7 @@
 # coding:utf-8
 # RPiCar configrations
 from RPi import GPIO as io
+import os
 
 GPIO_MODE = io.BCM
 
@@ -28,3 +29,13 @@ WHEEL_C = 22
 
 #web server configurations
 PORT = 8080
+
+def getTerminalSize():
+    # http://stackoverflow.com/questions/566746/how-to-get-console-window-width-in-python
+    try:
+        x, y = os.popen('stty size', 'r').read().split()
+    except ValueError:
+        x, y = 120, 80
+    return int(y), int(x)
+ 
+TERM_SIZE = getTerminalSize()

@@ -3,6 +3,12 @@ import time
 from config import *
 
 class motor(object):
+    STATUS_STOP = 0
+    STATUS_GO = 1
+    STATUS_BACK = 2
+    STATUS_TURN_RIGHT = 3
+    STATUS_TURN_LEGT = 4
+
     def __init__(self):
         io.setup(PIN_MOTOR_L1, io.OUT)
         io.setup(PIN_MOTOR_L2, io.OUT)
@@ -12,6 +18,7 @@ class motor(object):
         self.setpwm("mode", "pwm")
         self.setpwm("frequency", "500")
         self.setpwm("active", "1")
+        self.status = 0
 
     def setpwm(self, property, value):
         try:
@@ -25,41 +32,61 @@ class motor(object):
         self.stop()
         self.setpwm("active", "0")
 
-    def go(self):
-        io.output(PIN_MOTOR_L1, io.HIGH)
-        io.output(PIN_MOTOR_L2, io.LOW)
-        io.output(PIN_MOTOR_R1, io.HIGH)
-        io.output(PIN_MOTOR_R2, io.LOW)
+    def do_reverse(self):
+        if self.status == motor.STATUS_GO:
+            self.back()
+        elif self.status == motor.STATUS_BACK:
+            self.go()
+        elif self.status == motor.STATUS_TURN_LEGT:
+            self.turn_right()
+        elif self.status == motor.STATUS_TURN_RIGHT:
+            self.turn_left()
 
-    def back(self):
-        io.output(PIN_MOTOR_L1, io.LOW)
-        io.output(PIN_MOTOR_L2, io.HIGH)
-        io.output(PIN_MOTOR_R1, io.LOW)
-        io.output(PIN_MOTOR_R2, io.HIGH)
+
+    def go(self, start = False):
+        if self.status != motor.STATUS_STOP or start:
+            io.output(PIN_MOTOR_L1, io.LOW)
+            io.output(PIN_MOTOR_L2, io.HIGH)
+            io.output(PIN_MOTOR_R1, io.LOW)
+            io.output(PIN_MOTOR_R2, io.HIGH)
+            self.status = motor.STATUS_GO
+
+    def back(self, start = False):
+        if self.status != motor.STATUS_STOP or start:
+            io.output(PIN_MOTOR_L1, io.HIGH)
+            io.output(PIN_MOTOR_L2, io.LOW)
+            io.output(PIN_MOTOR_R1, io.HIGH)
+            io.output(PIN_MOTOR_R2, io.LOW)
+            self.status = motor.STATUS_BACK
 
     def stop(self):
         io.output(PIN_MOTOR_L1, io.LOW)
         io.output(PIN_MOTOR_L2, io.LOW)
         io.output(PIN_MOTOR_R1, io.LOW)
         io.output(PIN_MOTOR_R2, io.LOW)
+        self.status = motor.STATUS_STOP
 
     def turn_left(self, fast=True):
-        io.output(PIN_MOTOR_L1, io.LOW)
-        io.output(PIN_MOTOR_L2, io.HIGH)
-        if fast:
-            io.output(PIN_MOTOR_R1, io.HIGH)
-        else:
+        if self.status != motor.STATUS_STOP:
+            io.output(PIN_MOTOR_R2, io.LOW)
+            io.output(PIN_MOTOR_L1, io.HIGH)
+            io.output(PIN_MOTOR_L2, io.LOW)
             io.output(PIN_MOTOR_R1, io.LOW)
-        io.output(PIN_MOTOR_R2, io.LOW)
+            if fast:
+                io.output(PIN_MOTOR_R2, io.HIGH)
+            else:
+                io.output(PIN_MOTOR_R2, io.LOW)
+            self.status = motor.STATUS_TURN_LEGT
 
     def turn_right(self, fast=True):
-        io.output(PIN_MOTOR_L1, io.HIGH)
-        io.output(PIN_MOTOR_L2, io.LOW)
-        io.output(PIN_MOTOR_R1, io.LOW)
-        if fast:
-            io.output(PIN_MOTOR_R2, io.HIGH)
-        else:
-            io.output(PIN_MOTOR_R2, io.LOW)
+        if self.status != motor.STATUS_STOP:
+            io.output(PIN_MOTOR_L1, io.LOW)
+            io.output(PIN_MOTOR_L2, io.HIGH)
+            if fast:
+                io.output(PIN_MOTOR_R1, io.HIGH)
+            else:
+                io.output(PIN_MOTOR_R1, io.LOW)
+            self.status = motor.STATUS_TURN_RIGHT
 
     def set_speed(self, speed):
         '''

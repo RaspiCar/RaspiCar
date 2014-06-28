@@ -94,7 +94,7 @@ class SensorVote(object):
         self._calc_vote_lock.acquire()
         for s in self._vote_poll:
             _vt = s.vote_status()
-            if not caution and math.copysign(1, rt) != math.copysign(1, _vt) and rt >= _vt * 2 / 3.0:
+            if not caution and math.copysign(1, rt) != math.copysign(1, _vt) and rt > _vt * 2 / 3.0:
                 caution = True
             rt += _vt
         self._last_vote_status = rt
