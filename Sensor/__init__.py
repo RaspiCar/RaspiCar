@@ -16,6 +16,7 @@ class Sensor(object):
         self._weight = 1
         self._request_vote = None
         self._last_vote_status = 0
+        self._write_lock = RLock()
 
     def add_vote_request(self, func):
         self._request_vote = func
@@ -29,9 +30,11 @@ class Sensor(object):
             idx = 2
         else:
             raise AttributeError(" [%s]vote interrupt can only be called by vote pin events." % self.name)
+        self._write_lock.acquire()
         self._votes[idx] = io.input(pin)
         if self._request_vote:
             self._request_vote(self._last_vote_status, self.vote_status())
+        self._write_lock.release()
 
     def vote_status(self):
         if not self._left_pin or not self._right_pin:
@@ -49,10 +52,10 @@ class Sensor(object):
         self._right_pin = rpin
         self._neutral_pin = npin
         self._weight = weight
-        io.add_event_detect(lpin, edge = io.BOTH, callback = self.vote_interrupt, bouncetime = bouncetime)
-        io.add_event_detect(rpin, edge = io.BOTH, callback = self.vote_interrupt, bouncetime = bouncetime)
+        io.add_event_detect(lpin, edge = io.BOTH, callback = self.vote_interrupt)#, bouncetime = bouncetime)
+        io.add_event_detect(rpin, edge = io.BOTH, callback = self.vote_interrupt)#, bouncetime = bouncetime)
         if npin:
-            io.add_event_detect(npin, edge = io.BOTH, callback = self.vote_interrupt, bouncetime = bouncetime)
+            io.add_event_detect(npin, edge = io.BOTH, callback = self.vote_interrupt)#, bouncetime = bouncetime)
 
 
 class SensorVote(object):

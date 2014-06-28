@@ -89,28 +89,22 @@ def main():
                         m.do_reverse()
                 except KeyboardInterrupt:
                     return
-    if len(sys.argv) > 1:
-        m.set_speed(11)
-    else:
-        m.set_speed(int(raw_input('Speed > ') or '10'))
+    m.set_speed(int(raw_input('Speed > ') or '10'))
     b = hb()
     b.setDaemon(True)
     b.start()
-    m.go(start = True)
+    #m.go(start = True)
 
     while True:
         try:
-            if len(sys.argv) > 1:
-                inp = sys.argv[1]
-            else:
-                inp = raw_input('Override >')
-                h.do_override(inp)
-                if inp == 'b':
-                    m.back(start = True)
-                elif inp == 'g':
-                    m.go(start = True)
-                elif inp == 's':
-                    m.stop()
+            inp = raw_input('Override >')
+            h.do_override(inp)
+            if inp == 'b':
+                m.back(start = True)
+            elif inp == 'g':
+                m.go(start = True)
+            elif inp == 's':
+                m.stop()
         except KeyboardInterrupt:
             break
     b.exit = True

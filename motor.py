@@ -68,20 +68,20 @@ class motor(object):
 
     def turn_left(self, fast=True):
         if self.status != motor.STATUS_STOP:
-            io.output(PIN_MOTOR_R2, io.LOW)
-            io.output(PIN_MOTOR_L1, io.HIGH)
-            io.output(PIN_MOTOR_L2, io.LOW)
             io.output(PIN_MOTOR_R1, io.LOW)
+            io.output(PIN_MOTOR_R2, io.HIGH)
+            io.output(PIN_MOTOR_L2, io.LOW)
             if fast:
-                io.output(PIN_MOTOR_R2, io.HIGH)
+                io.output(PIN_MOTOR_L1, io.HIGH)
             else:
-                io.output(PIN_MOTOR_R2, io.LOW)
+                io.output(PIN_MOTOR_L2, io.LOW)
             self.status = motor.STATUS_TURN_LEGT
 
     def turn_right(self, fast=True):
         if self.status != motor.STATUS_STOP:
             io.output(PIN_MOTOR_L1, io.LOW)
             io.output(PIN_MOTOR_L2, io.HIGH)
+            io.output(PIN_MOTOR_R2, io.LOW)
             if fast:
                 io.output(PIN_MOTOR_R1, io.HIGH)
             else:
